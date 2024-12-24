@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './App.css';
+import BudgetDashboard from './components/BudgetDashboard';
 
 function App() {
   const [file, setFile] = useState(null);
@@ -21,15 +22,26 @@ function App() {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('http://localhost:5000/upload', formData, {
+      const response = await axios.post('http://localhost:5001/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      setTransactions(response.data.transactions);
-      setError(null);
+      
+      console.log('Upload response:', response.data);
+      
+      if (response.data && response.data.transactions && Array.isArray(response.data.transactions)) {
+        setTransactions(response.data.transactions);
+        setError(null);
+        // Add success message
+        alert(`Successfully uploaded ${response.data.rows_processed} transactions!`);
+      } else {
+        console.error('No transactions were processed:', response.data);
+        setError('No transactions were processed.');
+      }
     } catch (error) {
-      setError('Error uploading file. Please try again.');
+      console.error('Upload error:', error.response?.data || error.message);
+      setError(error.response?.data?.error || 'Error uploading file. Please try again.');
     }
   };
 
@@ -64,6 +76,7 @@ function App() {
             </table>
           )}
         </div>
+        <BudgetDashboard />
       </header>
     </div>
   );

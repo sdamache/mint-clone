@@ -10,7 +10,7 @@ function BudgetDashboard() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/transactions');
+        const response = await axios.get('http://localhost:5001/transactions');
         setTransactions(response.data.transactions);
         setError(null);
       } catch (error) {

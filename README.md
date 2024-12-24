@@ -58,7 +58,7 @@ The Personal Finance Tracker is a lightweight personal finance tracker that demo
    ```
 
 3. **Access the application:**
-   - The backend will be running on `http://localhost:5000`.
+   - The backend will be running on `http://localhost:5001`.
    - The frontend will be running on `http://localhost:3000`.
 
 4. **Upload a CSV file:**
@@ -74,3 +74,14 @@ The Personal Finance Tracker is a lightweight personal finance tracker that demo
 - The application uses Axios for HTTP requests between the frontend and backend.
 - The application uses Chart.js for visualizing spending data in the budget dashboard.
 
+
+Retrieved 5346 transactions
+Request: GET /transactions - Status: 200 - Duration: 0.41s - IP: 172.18.0.1
+172.18.0.1 - - [22/Dec/2024 05:59:07] "GET /transactions HTTP/1.1" 200 -
+Retrieved 5346 transactions
+Request: GET /transactions - Status: 200 - Duration: 0.08s - IP: 172.18.0.1
+172.18.0.1 - - [22/Dec/2024 05:59:07] "GET /transactions HTTP/1.1" 200 -
+127.0.0.1 - - [22/Dec/2024 05:59:07] "GET /health HTTP/1.1" 200 -
+Processing file: Dataset.csv
+Successfully processed 486 transactions
+Request: POST /upload - Status: 200 - Duration: 0.16s - IP: 172.18.0.1
