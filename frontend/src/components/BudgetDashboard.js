@@ -2,22 +2,23 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Bar, Pie } from 'react-chartjs-2';
 import 'chart.js/auto';
+import { Card, Button } from 'react-bootstrap';
 
 function BudgetDashboard() {
   const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/transactions');
-        setTransactions(response.data.transactions);
-        setError(null);
-      } catch (error) {
-        setError('Error fetching transactions. Please try again.');
-      }
-    };
+  const fetchTransactions = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/transactions');
+      setTransactions(response.data.transactions);
+      setError(null);
+    } catch (error) {
+      setError('Error fetching transactions. Please try again.');
+    }
+  };
 
+  useEffect(() => {
     fetchTransactions();
   }, []);
 
@@ -67,12 +68,17 @@ function BudgetDashboard() {
     <div>
       <h2>Budget Visualization Dashboard</h2>
       {error && <p className="error">{error}</p>}
-      <div className="chart-container">
-        <Pie data={budgetData} />
-      </div>
-      <div className="chart-container">
-        <Bar data={budgetData} />
-      </div>
+      <Card className="chart-container">
+        <Card.Body>
+          <Pie data={budgetData} />
+        </Card.Body>
+      </Card>
+      <Card className="chart-container">
+        <Card.Body>
+          <Bar data={budgetData} />
+        </Card.Body>
+      </Card>
+      <Button onClick={fetchTransactions}>Refresh Data</Button>
     </div>
   );
 }

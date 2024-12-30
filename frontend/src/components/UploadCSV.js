@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Card, Button } from 'react-bootstrap';
 
 function UploadCSV() {
   const [file, setFile] = useState(null);
@@ -31,11 +32,13 @@ function UploadCSV() {
   };
 
   return (
-    <div>
-      <input type="file" onChange={handleFileChange} />
-      <button onClick={handleUpload}>Upload CSV</button>
-      {error && <p className="error">{error}</p>}
-    </div>
+    <Card className="upload-container">
+      <Card.Body>
+        <input type="file" onChange={handleFileChange} />
+        <Button onClick={handleUpload}>Upload CSV</Button>
+        {error && <p className="error">{error}</p>}
+      </Card.Body>
+    </Card>
   );
 }
 

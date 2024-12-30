@@ -36,3 +36,45 @@
     transform: rotate(360deg);
   }
 }
+
+/* Sidebar styles */
+.sidebar {
+  background-color: #1a1a1a;
+  color: white;
+  height: 100vh;
+  padding: 20px;
+}
+
+.sidebar a {
+  color: white;
+  text-decoration: none;
+  display: block;
+  padding: 10px 0;
+}
+
+.sidebar a:hover {
+  background-color: #333;
+}
+
+/* Chart styles */
+.chart-container {
+  margin: 20px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Robinhood-like styles */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f4f4f4;
+}
+
+h2 {
+  color: #333;
+}
+
+.error {
+  color: red;
+}
