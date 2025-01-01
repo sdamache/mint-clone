@@ -56,4 +56,3 @@ jobs:
       - name: Build and run Docker containers
         run: |
           docker compose up --build -d
-          docker compose exec backend python backend/app.py
