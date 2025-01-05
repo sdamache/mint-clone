@@ -28,6 +28,15 @@ def categorize_transaction(description):
                 return category
     return "Miscellaneous"
 
+def map_fields(df):
+    if 'Transaction Date' in df.columns and 'Name' in df.columns:
+        df = df.rename(columns={'Transaction Date': 'Date', 'Name': 'Description'})
+    elif 'Date' in df.columns and 'Merchant' in df.columns and 'Price' in df.columns:
+        df = df.rename(columns={'Merchant': 'Description', 'Price': 'Amount'})
+    elif 'Date' in df.columns and 'Account' in df.columns and 'Amount' in df.columns:
+        df = df.rename(columns={'Account': 'Description'})
+    return df
+
 @app.route('/upload', methods=['POST'])
 def upload_csv():
     if 'file' not in request.files:
@@ -37,9 +46,11 @@ def upload_csv():
         return jsonify({"error": "No selected file"}), 400
     if file and file.filename.endswith('.csv'):
         df = pd.read_csv(file)
+        df = map_fields(df)
         df['Category'] = df['Description'].apply(categorize_transaction)
         df.to_sql('transactions', engine, if_exists='append', index=False)
-        return jsonify({"message": "File uploaded and transactions categorized"}), 200
+        transactions = df.to_dict(orient='records')
+        return jsonify({"message": "File uploaded and transactions categorized", "transactions": transactions}), 200
     return jsonify({"error": "Invalid file format"}), 400
 
 if __name__ == '__main__':
