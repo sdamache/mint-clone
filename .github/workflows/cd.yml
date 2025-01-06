@@ -1,0 +1,64 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  ACR_NAME: mintcloneregistry
+  RESOURCE_GROUP: mintclone-rg
+  FRONTEND_CONTAINER: mintclone-frontend
+  BACKEND_CONTAINER: mintclone-backend
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Login to ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.ACR_NAME }}.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build and push images
+        run: |
+          docker build -t ${{ env.ACR_NAME }}.azurecr.io/frontend:${{ github.sha }} -f frontend/Dockerfile ./frontend
+          docker build -t ${{ env.ACR_NAME }}.azurecr.io/backend:${{ github.sha }} -f Dockerfile .
+          docker push ${{ env.ACR_NAME }}.azurecr.io/frontend:${{ github.sha }}
+          docker push ${{ env.ACR_NAME }}.azurecr.io/backend:${{ github.sha }}
+
+      - name: Deploy Frontend Container
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az container create \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.FRONTEND_CONTAINER }} \
+              --image ${{ env.ACR_NAME }}.azurecr.io/frontend:${{ github.sha }} \
+              --dns-name-label mintclone-frontend \
+              --ports 3000 \
+              --environment-variables \
+              REACT_APP_API_URL=https://mintclone-backend.azurecontainer.io:5000
+
+      - name: Deploy Backend Container
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az container create \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.BACKEND_CONTAINER }} \
+              --image ${{ env.ACR_NAME }}.azurecr.io/backend:${{ github.sha }} \
+              --dns-name-label mintclone-backend \
+              --ports 5000 \
+              --secure-environment-variables \
+              DATABASE_URL=${{ secrets.DATABASE_URL }}
