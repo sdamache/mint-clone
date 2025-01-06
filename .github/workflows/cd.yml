@@ -7,6 +7,7 @@ on:
 
 env:
   ACR_NAME: mintcloneregistry
+  ACR_LOGIN_SERVER: mintcloneregistry.azurecr.io
   RESOURCE_GROUP: mintclone-rg
   FRONTEND_CONTAINER: mintclone-frontend
   BACKEND_CONTAINER: mintclone-backend
@@ -44,7 +45,10 @@ jobs:
             az container create \
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --name ${{ env.FRONTEND_CONTAINER }} \
-              --image ${{ env.ACR_NAME }}.azurecr.io/frontend:${{ github.sha }} \
+              --image ${{ env.ACR_LOGIN_SERVER }}/frontend:${{ github.sha }} \
+              --registry-login-server ${{ env.ACR_LOGIN_SERVER }} \
+              --registry-username ${{ secrets.ACR_USERNAME }} \
+              --registry-password ${{ secrets.ACR_PASSWORD }} \
               --dns-name-label mintclone-frontend \
               --ports 3000 \
               --environment-variables \
@@ -57,7 +61,10 @@ jobs:
             az container create \
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --name ${{ env.BACKEND_CONTAINER }} \
-              --image ${{ env.ACR_NAME }}.azurecr.io/backend:${{ github.sha }} \
+              --image ${{ env.ACR_LOGIN_SERVER }}/backend:${{ github.sha }} \
+              --registry-login-server ${{ env.ACR_LOGIN_SERVER }} \
+              --registry-username ${{ secrets.ACR_USERNAME }} \
+              --registry-password ${{ secrets.ACR_PASSWORD }} \
               --dns-name-label mintclone-backend \
               --ports 5000 \
               --secure-environment-variables \
