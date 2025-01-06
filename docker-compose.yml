@@ -56,7 +56,7 @@ services:
       timeout: 5s
       retries: 5
     ports:
-      - "5432:5432"
+      - "${PORT:-5432}:5432"  # Use PORT env variable or default to 5432
 
 networks:
   app-network:
