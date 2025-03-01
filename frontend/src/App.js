@@ -8,7 +8,7 @@ function getBackendUrl() {
     return process.env.REACT_APP_API_URL;
   }
   // Default to localhost for development
-  return 'http://localhost:5000';
+  return 'http://localhost:5001';
 }
 
 function App() {

@@ -24,7 +24,7 @@ CORS(app,
          "origins": ["https://shiny-couscous-9wgrqgg7qp939pj5-3000.app.github.dev",
                      "https://cuddly-acorn-67q97qg94624p7r-3000.app.github.dev", 
                     "http://localhost:3000",
-                    "http://localhost:5000"],
+                    "http://localhost:5001/upload"],
          "methods": ["GET", "POST", "OPTIONS"],
          "allow_headers": ["Content-Type"],
          "expose_headers": ["Content-Type"],
@@ -39,11 +39,12 @@ def log_request_info():
 
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', 
-                        request.headers.get('Origin', '*'))
+    origin = request.headers.get('Origin')
+    if origin:
+        response.headers.add('Access-Control-Allow-Origin', origin)
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
-    logger.debug('Response: %s', response.get_data())
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response
 
 # Configure logging
@@ -52,12 +53,10 @@ logger = logging.getLogger(__name__)
 
 # Database connection with retry logic
 def get_db_connection(max_retries=5, retry_delay=5):
-    DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@localhost:5432/transactions')
+    DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@db:5432/transactions?sslmode=disable')
     for attempt in range(max_retries):
         try:
-            engine = create_engine(DATABASE_URL, connect_args={
-                'sslmode': 'require'  # Required for Azure PostgreSQL
-            })
+            engine = create_engine(DATABASE_URL)
             engine.connect()
             logger.info("Database connection successful")
             return engine
@@ -296,4 +295,5 @@ def get_transactions():
         session.close()
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000, debug=True, threaded=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host="0.0.0.0", port=port, debug=True, threaded=True)
