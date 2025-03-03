@@ -1,5 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
 .App {
   text-align: center;
+  font-family: 'Roboto', sans-serif;
 }
 
 .App-logo {
@@ -35,4 +38,151 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.app-name {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #61dafb;
+}
+
+.upload-section {
+  margin-bottom: 20px;
+}
+
+.upload-section input[type="file"] {
+  margin-right: 10px;
+  padding: 5px 10px;
+  font-size: 0.9rem;
+}
+
+.upload-section button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: black;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.upload-section button.green {
+  background-color: #4CAF50;
+}
+
+.upload-section button:hover {
+  background-color: #45a049;
+}
+
+.upload-section button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.centered-table {
+  margin: 20px auto;
+  width: 80%;
+  border-collapse: collapse;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.centered-table th, .centered-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+.centered-table th {
+  background-color: #4CAF50;
+  color: white;
+  font-weight: bold;
+}
+
+.centered-table tr {
+  background-color: black;
+  color: white;
+}
+
+.centered-table tr:hover {
+  background-color: #333;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  margin: 0 5px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pagination button:hover {
+  background-color: #45a049;
+}
+
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  margin: 0 10px;
+  color: white;
+  font-weight: bold;
+}
+
+.error {
+  color: red;
+  margin-top: 10px;
+}
+
+.success {
+  color: green;
+  margin-top: 10px;
+}
+
+.stats {
+  margin-top: 20px;
+}
+
+.stats h3 {
+  margin-bottom: 10px;
+}
+
+.stats p {
+  margin: 5px 0;
+}
+
+.summary-table {
+  margin: 0 auto;
+  width: auto;
+  border-collapse: collapse;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.summary-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.summary-table tr:nth-child(1) {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.summary-table tr:nth-child(2) {
+  background-color: black;
+  color: white;
 }

@@ -169,6 +169,10 @@ def process_csv_data(df):
         df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
         logger.debug(f"Sample of converted dates: {df['Date'].head()}")
         
+        # Replace NaN values in Debit and Credit columns with 0
+        df['Debit'] = df['Debit'].fillna(0)
+        df['Credit'] = df['Credit'].fillna(0)
+        
         # Drop rows with invalid data
         initial_rows = len(df)
         df = df.dropna(subset=['Date', 'Amount', 'Description'])
@@ -180,6 +184,16 @@ def process_csv_data(df):
         df['Category'] = df['Description'].apply(categorize_transaction)
         category_counts = df['Category'].value_counts()
         logger.info(f"Category distribution: {category_counts.to_dict()}")
+        
+        # Replace NaN values with None
+        df = df.where(pd.notnull(df), None)
+        
+        # Replace None values with 0 in Debit and Credit columns
+        df['Debit'] = df['Debit'].apply(lambda x: 0 if x is None else x)
+        df['Credit'] = df['Credit'].apply(lambda x: 0 if x is None else x)
+        
+        # Format dates as ISO strings
+        df['Date'] = df['Date'].apply(lambda x: x.isoformat() if x is not None else None)
         
         return df, None
     except Exception as e:
@@ -230,6 +244,9 @@ def upload_csv():
             logger.error(f"CSV processing error: {error}")
             return jsonify({"error": f"Error processing CSV: {error}"}), 400
 
+        # Log the processed data
+        logger.info(f"Processed data: {processed_df.to_dict(orient='records')}")
+
         # Save to database
         session = Session()
         try:
@@ -256,11 +273,13 @@ def upload_csv():
             }
             logger.info(f"Upload statistics: {stats}")
             
-            return jsonify({
+            response = jsonify({
                 "message": "Upload successful",
                 "transactions": processed_df.to_dict(orient='records'),
                 "stats": stats
-            }), 200
+            })
+            logger.info(f"Response: {response.get_data(as_text=True)}")
+            return response, 200
             
         except Exception as e:
             session.rollback()

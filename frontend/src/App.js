@@ -18,6 +18,8 @@ function App() {
   const [success, setSuccess] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [stats, setStats] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const transactionsPerPage = 10;
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -63,6 +65,9 @@ function App() {
         }
       });
 
+      // Log the response data
+      console.log('Response data:', response.data);
+
       // Parse response if it's a string
       let responseData;
       try {
@@ -79,18 +84,33 @@ function App() {
       // Validate parsed response and ensure numeric values are valid
       const transformedTransactions = responseData.transactions
         .filter(t => t && typeof t === 'object')
-        .map(t => ({
-          ...t,
-          date: new Date(t.date).toLocaleDateString(),
-          amount: typeof t.amount === 'number' && !isNaN(t.amount) ? t.amount : 0,
-          description: String(t.description || ''),
-          category: String(t.category || 'Miscellaneous')
-        }))
-        .filter(t => t.date && t.description);
+        .map(t => {
+          let parsedDate;
+          try {
+            parsedDate = new Date(t.Date).toLocaleDateString();
+          } catch (dateError) {
+            console.error('Date parsing error:', {
+              date: t.Date,
+              error: dateError
+            });
+            parsedDate = 'Invalid Date';
+          }
+          return {
+            ...t,
+            date: parsedDate,
+            amount: typeof t.Amount === 'number' && !isNaN(t.Amount) ? t.Amount : 0,
+            description: String(t.Description || ''),
+            category: String(t.Category || 'Miscellaneous')
+          };
+        })
+        .filter(t => t.date !== 'Invalid Date' && t.description);
 
       if (transformedTransactions.length === 0) {
         throw new Error('No valid transactions found in response');
       }
+
+      // Sort transactions by date in descending order
+      transformedTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
       console.log('Processed transactions:', transformedTransactions);
       
@@ -125,10 +145,30 @@ function App() {
     }
   };
 
+  // Get current transactions
+  const indexOfLastTransaction = currentPage * transactionsPerPage;
+  const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
+  const currentTransactions = transactions.slice(indexOfFirstTransaction, indexOfLastTransaction);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const nextPage = () => {
+    if (currentPage < Math.ceil(transactions.length / transactionsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Personal Finance Tracker</h1>
+        <h1 className="app-name">Personal Finance Tracker</h1>
         
         <div className="upload-section">
           <input 
@@ -139,6 +179,7 @@ function App() {
           />
           <button 
             onClick={handleUpload}
+            className={file ? 'green' : ''}
             disabled={!file || uploading}
           >
             {uploading ? 'Uploading...' : 'Upload CSV'}
@@ -151,15 +192,25 @@ function App() {
         {stats && (
           <div className="stats">
             <h3>Upload Summary</h3>
-            <p>Total Transactions: {stats.total_rows}</p>
-            <p>Total Amount: ${stats.total_amount.toFixed(2)}</p>
+            <table className="summary-table">
+              <tbody>
+                <tr>
+                  <td>Total Transactions:</td>
+                  <td>{stats.total_rows}</td>
+                </tr>
+                <tr>
+                  <td>Total Amount:</td>
+                  <td>${stats.total_amount.toFixed(2)}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         )}
 
         {transactions.length > 0 && (
           <div className="transactions">
             <h3>Recent Transactions</h3>
-            <table>
+            <table className="centered-table">
               <thead>
                 <tr>
                   <th>Date</th>
@@ -169,7 +220,7 @@ function App() {
                 </tr>
               </thead>
               <tbody>
-                {transactions.map((transaction, index) => (
+                {currentTransactions.map((transaction, index) => (
                   <tr key={index}>
                     <td>{transaction.date}</td>
                     <td>{transaction.description}</td>
@@ -179,6 +230,15 @@ function App() {
                 ))}
               </tbody>
             </table>
+            <div className="pagination">
+              <button onClick={prevPage} disabled={currentPage === 1}>
+                Previous
+              </button>
+              <span> Page {currentPage} of {Math.ceil(transactions.length / transactionsPerPage)} </span>
+              <button onClick={nextPage} disabled={currentPage === Math.ceil(transactions.length / transactionsPerPage)}>
+                Next
+              </button>
+            </div>
           </div>
         )}
       </header>
